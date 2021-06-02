@@ -1,11 +1,12 @@
 {
-    "name": "dynamikaweb/yii2-template",
-    "description": "",
+    "name": "dynamikaweb/yii2-file-behavior",
+    "description": "Uploading and saving files",
     "type": "yii2-extension",
     "keywords": [
         "dynamika",
         "yii",
-        "yii2"
+        "yii2",
+        "files"
     ],
     "license": "BSD-3-Clause",
     "authors": [
@@ -21,18 +22,18 @@
         }
     ],
     "support": {
-        "issues": "http://github.com/dynamikaweb/yii2-template/issues",
-        "source": "http://github.com/dynamikaweb/yii2-template"
+        "issues": "http://github.com/dynamikaweb/yii2-file-behavior/issues",
+        "source": "http://github.com/dynamikaweb/yii2-file-behavior"
     },
     "require": {
-        "php": ">=7.4.0",
+        "php": ">=7.4",
         "yiisoft/yii2": "*"
     },
     "minimum-stability": "dev",
     "prefer-stable": false,
     "autoload": {
         "psr-4": {
-            "dynamikaweb\\": "src"
+            "dynamikaweb\\file\\": "src"
         }
     }
 }
