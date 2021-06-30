@@ -41,7 +41,7 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
 	public function canGetProperty($name, $checkVars = true)
     {
 		if (!in_array($name, [$this->attributeValidate, $this->attributeRelation, $this->attributeDataProvider])) {
-			parent::canGetProperty($name, $checkVars);
+			return parent::canGetProperty($name, $checkVars);
 		}
 
 		return true;
@@ -53,7 +53,7 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
 	public function canSetProperty($name, $checkVars = true)
     {
 		if (!in_array($name, [$this->attributeValidate])) {
-			parent::canSetProperty($name, $checkVars);
+			return parent::canSetProperty($name, $checkVars);
 		}
 
 		return true;
