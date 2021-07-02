@@ -48,14 +48,11 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
     public function events()
     {
         return [
-            /**
-             * @todo call events callbacks
             ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
             ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete',
             ActiveRecord::EVENT_AFTER_INSERT => 'afterSave',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterSave',
             ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete'
-            */
         ];
     }
 
@@ -96,6 +93,44 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
 	}
 
     /**
+     * storage in corresponding folder
+     */
+    public function afterSave($event)
+    {
+        
+    }
+
+    /**
+     * before deleting model, discover attachment folder
+     */
+    public function beforeDelete($event)
+    {
+        $this->_cache = array_map(
+            function ($model_file) {
+                return strtr($this->path,[
+                    '{root}' => Yii::getAlias($this->root),
+                    '{tablename}' => $this->owner->tableName(),
+                    '{id_relation}' => $model_file->getPrimaryKey(),
+                    '{id_owner}' => $this->owner->getPrimaryKey()
+                ]);
+            }
+        ,
+            $this->owner->{$this->attributeRelation}
+        );
+    }
+
+    /**
+     * after deleting model, delete folder with attached files
+     */
+    public function afterDelete($event)
+    {
+        foreach($this->_cache as $cache) {
+            FileHelper::removeDirectory($cache);
+        }
+    }
+
+
+    /**
      * @inheritdoc
      */
     public function __call($name, $params)
@@ -131,7 +166,7 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
     {
         foreach($this->attributeValidate as $attribute) {
             if ($name == $attribute) {
-                return ArrayHelper::getValue($this->_cache, $attribute, null);
+                return ArrayHelper::getValue($this->_files, $attribute, null);
             }
         }
 
@@ -143,7 +178,7 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
 
             case $this->attributeRelation: {
                 return $this->owner->hasMany($this->modelClass, $this->relations[$this->modelClass])
-                    ->viaTable($this->unionClass, $this->relations[$this->owner::classname()]);
+                    ->viaTable($this->unionClass::tablename(), array_flip($this->relations[$this->owner::classname()]));
             }
         }
 
@@ -157,7 +192,7 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
     {
         foreach($this->attributeValidate as $attribute) {
             if ($name == $attribute) {
-                return ($this->_cache[$attribute] = $value);
+                return ($this->_files[$attribute] = $value);
             }
         }
     }
