@@ -93,11 +93,31 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
 	}
 
     /**
+     * prepare to validate server side
+     */
+    public function beforeValidate($event)
+    {
+        foreach ($this->attributeValidate as $attribute) {
+            $this->_files[$attribute] = UploadedFile::getInstances($this->owner, $attribute);
+        }
+    }
+
+    /**
      * storage in corresponding folder
      */
     public function afterSave($event)
     {
-        
+        foreach ($this->_files as $attribute => $file) {
+            if ($file) {
+                call_user_func($this->storageClosure, 
+                    $this->owner,
+                    $attribute,
+                    $this->relations,
+                    $this->modelClass,
+                    $this->unionClass
+                );
+            }
+        }
     }
 
     /**
