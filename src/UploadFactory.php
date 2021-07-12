@@ -72,7 +72,11 @@ class UploadFactory
             }
             
             $connection = $model->db;
-            
+            $id_file = array_key_first($relations[$modelFile]);
+            $id_self = array_key_first($relations[$model::classname()]);
+            $field_file = $relations[$modelFile][$id_file];
+            $field_self = $relations[$model::classname()][$id_file];
+
             foreach($model->{$attribute} as $file) {
                 
                 $transaction = $connection->beginTransaction();
@@ -86,11 +90,7 @@ class UploadFactory
                     }
 
                     if ($arquivo->tipo == $modelFile::TIPO_IMAGEM) {
-                        $arquivo->posicao = $modelFile::getMaxPositionImage(
-                            (new $modelUnion)->tablename(), 
-                            current($relations[$model::classname()]),
-                            $model->id
-                        ) + 1;
+                        $arquivo->posicao = $modelFile::getMaxPositionImage((new $modelUnion)->tablename(), $field_self, $model->{$id_self}) + 1;
                     }
 
                     if (!$arquivo->save()) {
@@ -105,8 +105,8 @@ class UploadFactory
                     }
                     
                     $modelArquivo = new $modelUnion;
-                    $modelArquivo->id_pagina = $model->id;
-                    $modelArquivo->id_arquivo = $arquivo->id;
+                    $modelArquivo->{$field_self} = $model->{$id_self};
+                    $modelArquivo->{$field_file} = $arquivo->{$id_file};
                     $modelArquivo->tipo = $arquivo->tipo;
                     
                     if (!$modelArquivo->save()) {
