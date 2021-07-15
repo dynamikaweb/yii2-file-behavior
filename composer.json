@@ -25,6 +25,7 @@
         "issues": "http://github.com/dynamikaweb/yii2-file-behavior/issues",
         "source": "http://github.com/dynamikaweb/yii2-file-behavior"
     },
+    "minimum-stability": "dev",
     "require": {
         "php": ">=7.4",
         "yiisoft/yii2": "*"
