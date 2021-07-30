@@ -87,12 +87,14 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
      */
     public function beforeDelete($event)
     {
-        $this->_cache = strtr($this->path, [
-            '{root}' => Yii::getAlias($this->root),
-            '{tablename}' => $this->owner->tableName(),
-            '{id_relation}' => $this->owner->{$this->attributeRelation}->getPrimaryKey(),
-            '{id_owner}' => $this->owner->getPrimaryKey()
-        ]);
+	if ($this->owner->{$this->attributeRelation}){
+            $this->_cache = strtr($this->path, [
+                '{root}' => Yii::getAlias($this->root),
+                '{tablename}' => $this->owner->tableName(),
+                '{id_relation}' => $this->owner->{$this->attributeRelation}->getPrimaryKey(),
+                '{id_owner}' => $this->owner->getPrimaryKey()
+            ]);    
+        }
     }
 
     /**
