@@ -176,6 +176,7 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
             ->andFilterWhere(ArrayHelper::getValue($options, 'filterWhere', []))
             ->andWhere(ArrayHelper::getValue($options, 'where', []))
             ->orderBy(ArrayHelper::getValue($options, 'order', []))
+            ->limit(ArrayHelper::getValue($options, 'limit', null))
             ->andWhere(["{$table_union}.{$field_self}" => $id_self])
             ->leftJoin($this->unionClass::tablename(), "{$table_union}.{$field_file} = {$table_file}.{$id_file}")
         ]);
