@@ -170,7 +170,9 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
         $id_file = array_key_first($this->relations[$this->modelClass]);
         $id_self = $this->owner->{array_key_first($this->relations[$this->owner::classname()])};
 
-        return new ActiveDataProvider(['query' => $this->modelClass::find()
+        return new ActiveDataProvider([
+            'pagination' => ArrayHelper::getValue($options, 'pagination', false),
+            'query' => $this->modelClass::find()
             ->andFilterWhere(ArrayHelper::getValue($options, 'filterWhere', []))
             ->andWhere(ArrayHelper::getValue($options, 'where', []))
             ->orderBy(ArrayHelper::getValue($options, 'order', []))
