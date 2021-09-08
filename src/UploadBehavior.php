@@ -38,6 +38,18 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
     /**
 	 * @inheritdoc
 	 */
+    public function hasMethod($name)
+    {
+        if ($name !== 'get'.ucfirst($this->attributeDataProvider)) {
+			return parent::hasMethod($name);
+		}
+
+        return true;
+    }
+
+    /**
+	 * @inheritdoc
+	 */
 	public function canGetProperty($name, $checkVars = true)
     {
 		if (!in_array($name, [$this->attributeValidate, $this->attributeRelation, $this->attributeDataProvider])) {
@@ -117,14 +129,7 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
             }
             
             case $this->attributeDataProvider: {
-                $field = array_key_first($this->relation);
-                $id = $this->owner->getAttribute($this->relation[$field]);
-
-                return new ActiveDataProvider([
-                    'query' => $this->modelClass::find()->where([
-                        $field => $id
-                    ])
-                ]);
+                return $this->{'get'.ucfirst($this->attributeDataProvider)}();
             }
 
             case $this->attributeRelation: {
@@ -149,4 +154,25 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
             }
         }
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function __call($name, $params)
+    {
+        if ($name !== 'get'.ucfirst($this->attributeDataProvider)) {
+			return null;
+		}
+
+        $field = array_key_first($this->relation);
+        $id = $this->owner->getAttribute($this->relation[$field]);
+
+        return new ActiveDataProvider([
+            'pagination' => false,
+            'query' => $this->modelClass::find()->where([
+                $field => $id
+            ])
+        ]);
+    }
+            
 }
