@@ -29,6 +29,7 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
         return [
             ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
             ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete',
+            ActiveRecord::EVENT_AFTER_VALIDATE => 'afterValidate',
             ActiveRecord::EVENT_AFTER_INSERT => 'afterSave',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterSave',
             ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete'
@@ -76,7 +77,19 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
      */
     public function beforeValidate($event)
     {
-        $this->_file = UploadedFile::getInstances($this->owner, $this->attributeValidate);
+        if (in_array($this->attributeValidate, $this->owner->activeAttributes())) {
+            $this->_file = UploadedFile::getInstances($this->owner, $this->attributeValidate);
+        }
+    }
+
+    /**
+     * clean file when invalid
+     */
+    public function afterValidate($event)
+    {
+        if ($this->owner->hasErrors()) {
+            $this->_file = null;
+        }
     }
 
     /**
