@@ -50,6 +50,7 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
         return [
             ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
             ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete',
+            ActiveRecord::EVENT_AFTER_VALIDATE => 'afterValidate',
             ActiveRecord::EVENT_AFTER_INSERT => 'afterSave',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterSave',
             ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete'
@@ -98,7 +99,22 @@ class MultipleUploadsBehavior extends \yii\behaviors\AttributeBehavior
     public function beforeValidate($event)
     {
         foreach ($this->attributeValidate as $attribute) {
+            // not are subject to validation in the current scenario.
+            if (!in_array($attribute, $this->owner->activeAttributes())) {
+                continue;
+            }
+            // push
             $this->_files[$attribute] = UploadedFile::getInstances($this->owner, $attribute);
+        }
+    }
+
+    /**
+     * clean files when invalid
+     */
+    public function afterValidate($event)
+    {
+        if ($this->owner->hasErrors()) {
+            $this->_files = [];
         }
     }
 
