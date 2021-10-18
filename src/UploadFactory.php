@@ -63,7 +63,7 @@ class UploadFactory
      * 
      * @return object Closure
      */
-    public function LegacyMultiples()
+    public static function LegacyMultiples()
     {
         return function($model, $attribute, $relations, $modelFile, $modelUnion)
         {
