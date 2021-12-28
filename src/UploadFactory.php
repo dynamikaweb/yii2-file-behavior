@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace dynamikaweb\file;
 
@@ -16,8 +16,7 @@ class UploadFactory
      */
     public static function Legacy()
     {
-        return function($model, $uploadAttribute, $fileAttribute, $modelFile)
-        {
+        return function ($model, $uploadAttribute, $fileAttribute, $modelFile, $attributeRelation) {
             if (empty($model->$uploadAttribute)) {
                 return false;
             }
@@ -33,9 +32,9 @@ class UploadFactory
                 if ($arquivo->load($model->$uploadAttribute) && $arquivo->save()) {
                     if ($arquivo->upload()) {
 
-                        $arquivoAtual = $model->arquivo;
+                        $arquivoAtual = $model->$attributeRelation;
                         if (!empty($arquivoAtual)) {
-                            $arquivoAtual->modelClass = $modelFile;
+                            $arquivoAtual->modelClass = $model::tableName();
                             $arquivoAtual->delete();
                         }
 
@@ -47,10 +46,9 @@ class UploadFactory
                     throw new Exception(current($arquivo->firstErrors));
                 }
                 $transaction->commit();
-            } 
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $transaction->rollBack();
-                Yii::error(get_class().' - '.$e->getMessage());
+                Yii::error(get_class() . ' - ' . $e->getMessage());
                 throw new Exception($e->getMessage());
             }
         };
@@ -65,26 +63,25 @@ class UploadFactory
      */
     public static function LegacyMultiples()
     {
-        return function($model, $attribute, $relations, $modelFile, $modelUnion)
-        {
+        return function ($model, $attribute, $relations, $modelFile, $modelUnion) {
             if (empty($model->$attribute)) {
                 return false;
             }
-            
+
             $connection = $model->db;
             $id_file = array_key_first($relations[$modelFile]);
             $id_self = array_key_first($relations[$model::classname()]);
             $field_file = $relations[$modelFile][$id_file];
             $field_self = $relations[$model::classname()][$id_file];
 
-            foreach($model->{$attribute} as $file) {
-                
+            foreach ($model->{$attribute} as $file) {
+
                 $transaction = $connection->beginTransaction();
                 try {
-                    
+
                     $arquivo = new $modelFile;
                     $arquivo->modelClass = $model->tablename();
-                    
+
                     if (!$arquivo->load($file)) {
                         throw new \Exception('Não foi possível carregar o arquivo.');
                     }
@@ -99,16 +96,16 @@ class UploadFactory
                             throw new \Exception($error);
                         }
                     }
-                    
+
                     if (!$arquivo->upload()) {
                         throw new \Exception('Não foi possível fazer upload do arquivo.');
                     }
-                    
+
                     $modelArquivo = new $modelUnion;
                     $modelArquivo->{$field_self} = $model->{$id_self};
                     $modelArquivo->{$field_file} = $arquivo->{$id_file};
                     $modelArquivo->tipo = $arquivo->tipo;
-                    
+
                     if (!$modelArquivo->save()) {
                         foreach ($modelArquivo->getErrors() as $error) {
                             $error = is_array($error) ? current($error) : $error;
@@ -117,7 +114,7 @@ class UploadFactory
                     }
                     $transaction->commit();
                 } catch (\Exception $e) {
-                    Yii::error(get_class().' - '.$e->getMessage());
+                    Yii::error(get_class() . ' - ' . $e->getMessage());
                     $transaction->rollBack();
                     throw new \yii\web\HttpException(500, $e->getMessage());
                 }

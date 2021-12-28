@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace dynamikaweb\file;
 
@@ -22,8 +22,8 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
     private $_file;
 
     /**
-	 * @inheritdoc
-	 */
+     * @inheritdoc
+     */
     public function events()
     {
         return [
@@ -37,40 +37,40 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
     }
 
     /**
-	 * @inheritdoc
-	 */
+     * @inheritdoc
+     */
     public function hasMethod($name)
     {
-        if ($name !== 'get'.ucfirst($this->attributeDataProvider)) {
-			return parent::hasMethod($name);
-		}
+        if ($name !== 'get' . ucfirst($this->attributeDataProvider)) {
+            return parent::hasMethod($name);
+        }
 
         return true;
     }
 
     /**
-	 * @inheritdoc
-	 */
-	public function canGetProperty($name, $checkVars = true)
+     * @inheritdoc
+     */
+    public function canGetProperty($name, $checkVars = true)
     {
-		if (!in_array($name, [$this->attributeValidate, $this->attributeRelation, $this->attributeDataProvider])) {
-			return parent::canGetProperty($name, $checkVars);
-		}
+        if (!in_array($name, [$this->attributeValidate, $this->attributeRelation, $this->attributeDataProvider])) {
+            return parent::canGetProperty($name, $checkVars);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
     /**
-	 * @inheritdoc
-	 */
-	public function canSetProperty($name, $checkVars = true)
+     * @inheritdoc
+     */
+    public function canSetProperty($name, $checkVars = true)
     {
-		if (!in_array($name, [$this->attributeValidate])) {
-			return parent::canSetProperty($name, $checkVars);
-		}
+        if (!in_array($name, [$this->attributeValidate])) {
+            return parent::canSetProperty($name, $checkVars);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
     /**
      * prepare to validate server side
@@ -98,11 +98,13 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
     public function afterSave($event)
     {
         if ($this->_file) {
-            call_user_func($this->storageClosure, 
+            call_user_func(
+                $this->storageClosure,
                 $this->owner,
                 $this->attributeValidate,
                 current($this->relation),
-                $this->modelClass
+                $this->modelClass,
+                $this->attributeRelation
             );
         }
     }
@@ -112,13 +114,13 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
      */
     public function beforeDelete($event)
     {
-	if ($this->owner->{$this->attributeRelation}){
+        if ($this->owner->{$this->attributeRelation}) {
             $this->_cache = strtr($this->path, [
                 '{root}' => Yii::getAlias($this->root),
                 '{tablename}' => $this->owner->tableName(),
                 '{id_relation}' => $this->owner->{$this->attributeRelation}->getPrimaryKey(),
                 '{id_owner}' => $this->owner->getPrimaryKey()
-            ]);    
+            ]);
         }
     }
 
@@ -135,23 +137,22 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
      */
     public function __get($name)
     {
-        switch ($name)
-        {
+        switch ($name) {
             case $this->attributeValidate: {
-                return $this->_file;
-            }
-            
+                    return $this->_file;
+                }
+
             case $this->attributeDataProvider: {
-                return $this->{'get'.ucfirst($this->attributeDataProvider)}();
-            }
+                    return $this->{'get' . ucfirst($this->attributeDataProvider)}();
+                }
 
             case $this->attributeRelation: {
-                return $this->owner->hasOne($this->modelClass, $this->relation);
-            }
+                    return $this->owner->hasOne($this->modelClass, $this->relation);
+                }
 
             default: {
-                return null;
-            }
+                    return null;
+                }
         }
     }
 
@@ -160,11 +161,10 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
      */
     public function __set($name, $value)
     {
-        switch ($name)
-        {
+        switch ($name) {
             case $this->attributeValidate: {
-                return $this->_file = $value;
-            }
+                    return $this->_file = $value;
+                }
         }
     }
 
@@ -173,9 +173,9 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
      */
     public function __call($name, $params)
     {
-        if ($name !== 'get'.ucfirst($this->attributeDataProvider)) {
-			return null;
-		}
+        if ($name !== 'get' . ucfirst($this->attributeDataProvider)) {
+            return null;
+        }
 
         $field = array_key_first($this->relation);
         $id = $this->owner->getAttribute($this->relation[$field]);
@@ -187,5 +187,4 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
             ])
         ]);
     }
-            
 }
