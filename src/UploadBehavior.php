@@ -129,7 +129,13 @@ class UploadBehavior extends \yii\behaviors\AttributeBehavior
      */
     public function afterDelete($event)
     {
-        FileHelper::removeDirectory($this->_cache);
+        if($this->owner->{$this->attributeRelation}) {
+            $this->owner->{$this->attributeRelation}->delete();
+        }
+
+        if ($this->_cache) {
+            FileHelper::removeDirectory($this->_cache);
+        }
     }
 
     /**
