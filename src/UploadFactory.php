@@ -48,7 +48,7 @@ class UploadFactory
                 $transaction->commit();
             } catch (Exception $e) {
                 $transaction->rollBack();
-                Yii::error(get_class() . ' - ' . $e->getMessage());
+                Yii::error(self::class . ' - ' . $e->getMessage());
                 throw new Exception($e->getMessage());
             }
         };
@@ -114,7 +114,7 @@ class UploadFactory
                     }
                     $transaction->commit();
                 } catch (\Exception $e) {
-                    Yii::error(get_class() . ' - ' . $e->getMessage());
+                    Yii::error(self::class . ' - ' . $e->getMessage());
                     $transaction->rollBack();
                     throw new \yii\web\HttpException(500, $e->getMessage());
                 }
